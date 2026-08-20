@@ -129,7 +129,166 @@ Que sigui un llenguatge tipat estàtic vol dir que t'obliga (o et permet) posar 
 
 Com que s'ha decidit fer servir TypeScript per realitzar tots els codis d'aquest repositori, i com que no s'espera que ningú tingui coneixements prèvis sobre TypeScript, s'ha decidit fer un petit resum sobre els bàsics de TypeScript en un document apart en aquest mateix repositori (vegeu TYPE_SCRIPT.md a l'arrel del repositori).
 
+
+## FILOSOFIA DE REACT NATIVE I PRIMERS CODIS
+
+Com ja hem introduit abans, RN és un *framework¹* de *JavaScript³* que ens permet crear aplicacions multiplataforma (i.e. *cross-platform²*) fent servir JavaScript o, l'alternativa moderna, *TypeScript⁴*. 
+
+NOTA: Tots els termes amb un superindex (p.e *framework¹*) es troben definits a la secció "Diccionari de conceptes" que trobareu al final d'aquest document (desprès de la bibliografia i abans de l'annex).
+
+FILOSOFIA: Quan programem amb React Native ho hem de fer pensant sempre en què veurà l'usuari.
+
+L'ARQUITECTURA de React Native es basa en **components**.
+
+Un Component es pot entendre com una peça petita d'un trencaclosques, la qual podem reaprofitar per a fer components més grans. Es recomana que cada component tingui una única funcionalitat, és a dir, es veu amb molts bons ulls el delegar tasques entre components.
+
+A React Native un **component és una funció**, no una classe.
+
+Cada component tindrà un **estat**, l'estat és una espècie de memòria a curt termini que dictamina com es renderitzarà el component. Quan un estat canvia RN se n'adonarà i re-renderitzarà el component.
+
+L'estat està conformat per **variables d'estat**. És reomanable disposar del mínim nombre de variables d'estat possible i calcular les demés. 
+
+També se'ns recomana (pràcticament se'ns obliga) a actualitzar les variables d'estat fent servir **funcions setter**.
+
+Una altra propietat dels components és que **les dades són unidireccionals**, és a dir, només es mouen en una direcció (i.e. de component pare a component fill).
+
+Cada component haurà de retornar un *component nadiu*. Els components nadius són uns components especials de react que actuen de pont entre els diferents DOMs⁵ dels diferents dispositius. Per exemple, el component nadiu `<View>` es tradueix a un `<div>` en HTML, a un `UIView` a iOS o a un `ViewGroup` a Android. A l'annex d'aquest document podem trobar una taula amb els principals components nadius i les seves traduccions.
+
+
+
+```TypeScript
+// Importem les eines necessàries i components nadius de React Native
+import {useState} from 'react'
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+
+
+// 1. Definim el tipus/interfície per a les dades pures del producte
+interface Product {
+  name: string;
+  price: number;
+}
+
+// 2. Definim les props que necessita el component fill per pintar-se i comunicar-se
+interface ProductItemProps extends Product {
+  onAddToCart: (productName: string) => void;
+}
+
+/* 
+  3. CHILD COMPONENT
+  Notem que:
+    - El component és una funció.
+    - UNIDIRECCIONALITAT: Les dades es passen com a paràmetres (props) de component pare a component fill, però no al revés.
+*/
+function ProductItem({ name, price, onAddToCart }: ProductItemProps) {
+  // Cada element ha de retornar un únic component arrel en format JSX
+  return (
+    <View style={styles.itemContainer}>
+      <Text style={styles.itemText}>
+        {/* Per saber més sobre com funcionen els estils (styles) a React Native aneu a la secció corresponent més endavant */}
+        {name} - {price}€ {/* Podem accedir als paràmetres i variables de la funció fent servir {} */}
+      </Text>
+      <TouchableOpacity 
+        style={styles.button}
+        onPress={() => onAddToCart(name)}
+      >
+        <Text style={styles.buttonText}>Add to Cart</Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+/*
+  4. COMPONENT PARE
+  Amb "export default" indiquem a codis externs que aquesta és la funció "main" (i.e. a la primera que hem d'anar)
+*/
+export default function ShopingCart(){
+  // Definim el contingut del carro com l'estat del component
+  const [cart, setCart] = useState<Product[]>([]);
+
+  // Calculem la longitut del carro sense necessitat de crear un nou estat
+  const cartLength = cart.length;
+
+  // Creem la funció que gestiona quan un producte s'afegeix al carro
+  // Aquesta és la funció que enviarem a cada item
+  const handleAddToCart = (productName: string) => {
+    // Aqui hauriem de buscar el producte a una DB o algo, però, de cara al codi, senzillament es crea un nou producte
+    const newProduct: Product = {
+      name: productName,
+      price: 10.0,
+    };
+
+    // Actualitzem l'estat del carro
+    setCart([...cart, newProduct]);
+  }
+
+  // Return de la funció en format JSX
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}> Online Shop </Text>
+      <Text style={styles.subtitle}> Number of products inside the cart: {cartLength} </Text>
+      <Text style={styles.subtitle}> Products available: </Text>
+
+      {/* Cridem als components fills */}
+      <ProductItem name="T-Shirt" price={9.99} onAddToCart={handleAddToCart} />
+      <ProductItem name="Cap" price={14.99} onAddToCart={handleAddToCart} />
+
+    </View>
+  );
+}
+
+// Per saber més sobre com funcionen els estils (styles) a ReactNative aneu a la secció corresponent més endavant. De moment només posem el codi per coherència.
+const styles = StyleSheet.create({
+  container: { flex: 1, padding: 20, justifyContent: 'center' },
+  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 10 },
+  subtitle: { fontSize: 16, marginBottom: 20, color: '#666' },
+  itemContainer: { padding: 15, backgroundColor: '#f9f9f9', marginBottom: 10, borderRadius: 8 },
+  itemText: { fontSize: 16, marginBottom: 8 },
+  button: { backgroundColor: '#007AFF', padding: 10, borderRadius: 5, alignItems: 'center' },
+  buttonText: { color: '#fff', fontWeight: 'bold' }
+});
+
+```
+
+Tal com hem vist a 
+
+
+
+## STYLE - COM HEM DE TRACTAR AMB ELS ESTILS
+
+// Secció per parlar sobre les bones praxis a l'hora d'estilitzar la web
+
+## NAVEGACIÓ
+
+// Com fer una aplicació de dos botons que canvia de pantalla
+
 ## Bibliografia
 [YT video - React Native Full Course for Beginners - freeCodeCamp](https://www.youtube.com/watch?v=sm5Y7Vtuihg)
 
 [Pàgina WEB - REACT NATIVE](https://reactnative.dev/)
+
+## Diccionari de conceptes
+1. *framework*: Ecosistema estructurat on escrivim codi. A diferència d'una llibreria tradicional, on nosaltres la cridem per executar un codi, un framework crida al nostre codi per executar a una altra banda.
+2. *cross-platform*: Propietat d'un programa o codi que indica que pot ser executat a diferents dispositius.
+3. *JavaScript*: Llenguatge de programació ....
+4. *TypeScript*: Llenguatge de programació .... // Hi ha un document adjunt a aquest repo anomenat "TYPE_SCRIPT.md" que conté una serie d'apunts que he pres del tema.
+5. *DOM*: El DOM (*Document Object Model*) és una representació en forma d'arbre que fa el navegador web de qualsevol pàgina HTML.
+
+
+
+
+## Annex
+### Taula de components nadius de React Native
+
+| Component de React Native | Descripció principal | Equivalent en HTML (Web) | Equivalent Natiu a iOS | Equivalent Natiu a Android |
+| :--- | :--- | :--- | :--- | :--- |
+| `<View>` | El contenidor bàsic per estructurar la layout i maquetar. | `<div>` | `UIView` | `ViewGroup` / `View` |
+| `<Text>` | S'utilitza obligatòriament per mostrar qualsevol text a la pantalla. | `<p>`, `<span>`, `<h1>`... | `UILabel` | `TextView` |
+| `<Image>` | Per mostrar imatges locals o remotes. | `<img />` | `UIImageView` | `ImageView` |
+| `<ScrollView>` | Un contenidor que permet fer scroll vertical o horitzontal quan el contingut no cap. | Un contenidor amb `overflow: auto` | `UIScrollView` | `ScrollView` |
+| `<TextInput>` | Camp de text interactiu perquè l'usuari pugui escriure (ex: formularis). | `<input type="text">` o `<textarea>` | `UITextField` / `UITextView` | `EditText` |
+| `<TouchableOpacity>` / `<Pressable>` | Components encarregats de detectar clics o gestos tàctils amb una animació d'opacitat. | `<button>` o qualsevol element amb `onclick` | `UIButton` / `UITapGestureRecognizer` | `Button` / `TouchableHighlight` |
+| `<FlatList>` | Llista eficient dissenyada per mostrar grans volums de dades de manera optimitzada. | `<ul>` amb elements `<li>` | `UICollectionView` | `RecyclerView` |
+| `<Modal>` | Una finestra emergent o panell que es superposa per sobre de tota la resta de la interfície. | `<dialog>` o un contenidor absolut amb fosc | `UIViewController` (amb modal presentation) | `Dialog` / `DialogFragment` |
+| `<Switch>` | Botó d'interruptor o pestanya lliscant d'activat/desactivat (true/false). | `<input type="checkbox">` amb estil d'interruptor | `UISwitch` | `Switch` |
+| `<ActivityIndicator>` | El cercle de càrrega o indicador d'activitat animat. | Un GIF o SVG de càrrega | `UIActivityIndicatorView` | `ProgressBar` |
+| `<StatusBar>` | Controla la barra superior del dispositiu (on surt la bateria, hora, cobertura). | No té equivalent directe (controla l'entorn del sistema) | `UIStatusBar` | `WindowInsetsController` / `StatusBar` |
