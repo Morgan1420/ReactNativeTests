@@ -152,7 +152,7 @@ També se'ns recomana (pràcticament se'ns obliga) a actualitzar les variables d
 
 Una altra propietat dels components és que **les dades són unidireccionals**, és a dir, només es mouen en una direcció (i.e. de component pare a component fill).
 
-Cada component haurà de retornar un *component nadiu*. Els components nadius són uns components especials de react que actuen de pont entre els diferents DOMs⁵ dels diferents dispositius. Per exemple, el component nadiu `<View>` es tradueix a un `<div>` en HTML, a un `UIView` a iOS o a un `ViewGroup` a Android. A l'annex d'aquest document podem trobar una taula amb els principals components nadius i les seves traduccions.
+Cada component haurà de retornar un *component nadiu*. Els components nadius són uns components especials de react que actuen de pont entre el codi i els elements natius dels diferents dispositius. Per exemple, el component nadiu `<View>` es tradueix a un `<div>` en HTML, a un `UIView` a iOS o a un `ViewGroup` a Android. A l'annex d'aquest document podem trobar una taula amb els principals components nadius i les seves traduccions.
 
 
 
@@ -249,13 +249,18 @@ const styles = StyleSheet.create({
 
 ```
 
-Tal com hem vist a 
-
-
 
 ## STYLE - COM HEM DE TRACTAR AMB ELS ESTILS
 
-// Secció per parlar sobre les bones praxis a l'hora d'estilitzar la web
+Els estils a React Native són molt fàcils d'entendre si ja coneixem els principis del desenvolupament web, concretament com fer estils amb CSS.
+
+A React Native, però, **no farem servir fitxers CSS**, sinó que escriurem els estils directament dins del codi TS (o JS) utilitzant objectes de JavaScript i l'eina `StyleSheet.create()`.
+
+La filosofia d'aquests estils és molt semblant a la de CSS, però amb una sintaxi adaptada:
+* No fem servir classes (`.class`) ni IDs (`#id`) d'HTML. En el seu lloc, creem objectes dins de `StyleSheet.create()` i els assignem directament a la propietat `style` del component (p.e. `style={styles.container}`).
+* Les propietats s'escriuen en format **camelCase** (p.e. `backgroundColor` en lloc de `background-color`) i **sense unitats** (p.e. `fontSize: 16` en lloc de `16px`).
+
+A l'exemple de la secció anterior ja es pot veure com s'ha estilitzat una aplicació, per tant no realitzarem un nou exemple.
 
 ## NAVEGACIÓ
 
