@@ -47,13 +47,16 @@ Molts dels tutorials i recursos online ens recomanen fer servir REACT NATIVE a t
 Per crear un projecte amb EXPO farem servir la comanda:
 
 ```bash
-npx create-expo-app@latest # --template default@sdk-57 # Comento el template pq com a mínim amb el template m'ha funcionat
+npx create-expo-app@latest # --template blank # Comento el template, però el recomano per començar un projecte buit
 ```
 
-Aquesta comanda es pot executar des de l'arrel del projecte, ja que crearà un subdirectori amb tot el contingut de la web, evitant la necessitat de crear subdirectoris per cada exercici.
+Aquesta comanda es pot executar des de l'arrel del projecte, ja que crearà un subdirectori amb tot el contingut de la web, evitant la necessitat de crear subdirectoris per cada exercici. Ara bé, en crear el projecte, si el volem executar s'haurà de fer des de dins del directori.
+
+NOTA: Si creem el projecte amb "--template blank" segurament no es veuran aluns fitxers i directoris com el de "components/*", no passa res, si ens veiem amb la necessitat de crear el directori el podem crear, sempre tenint en compte de seguir una estructura similar a l'estructura standard explicada al següent apartat. Adicionalment, segurament l'unic fitxer de "codi" sigui el de "App.js", aquest es pot executar perfectament, però si el que es desitja és treballar amb TypeScript en comptes de JavaScript només cal canviar la terminació del fitxer de: `App.js` a: `App.tsx`. En executar el projecte React detectarà automàticament el tipus de fitxer i installarà/farà els canvis necessàris per adaptar-se a les teves preferències (això es pot fer amb tots els fitxers)
+.
 
 ### Executar un projecte
-Per executar un projecte es pot fer servir la següent comanda:
+Per executar un projecte es pot fer servir la següent comanda (des de dins del directori del projecte):
 
 ```bash
 npx expo start
@@ -264,7 +267,7 @@ A l'exemple de la secció anterior ja es pot veure com s'ha estilitzat una aplic
 
 ## NAVEGACIÓ
 
-// Com fer una aplicació de dos botons que canvia de pantalla
+
 
 ## Bibliografia
 [YT video - React Native Full Course for Beginners - freeCodeCamp](https://www.youtube.com/watch?v=sm5Y7Vtuihg)
