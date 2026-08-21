@@ -22,7 +22,7 @@ Per comprovar si tenim els recursos disponibles es pot obrir una nova terminal i
 node -v
 
 # Versió de Git
-git -v
+git --version
 
 # Versió de NPM
 npm -v
@@ -80,7 +80,6 @@ Per tal de mantindre els projectes nets i ordenats, aquest directori es sol dubd
 - **src/app/\* :** Aquesta carpeta es fa servir per l'enroutament basat en fitxers. En altres paraules, cada fitxer que es troba en aquest directori fa referència a una pàgina diferent dins de l'aplicació (p.e. index.tsx (i.e. pàgina principial), userProfile.tsk, explore.tsx...).
 - **src/components/\* :** En aquest directori es poden trobar tots els components reutilitzables de la app (p.e. Button, UserCard, TextInput...).
 - **src/constants/\* :** Directori que serveix per a guardar valors fixos de la app (p.e. API endpoints, URLs, paletes de colors...).
-- **src/hooks/\* :** Directori on es desen els Custom Hooks de React (funcions lògiques reutilitzables que fan servir useState, useEffect, etc.). (NO TINC ENCARA CLAR EL PROPÒSIT D'AQUESTA CARPETA).
 
 #### → assets/*
 
@@ -108,9 +107,9 @@ El fitxer *package-lock.json* es genera automàticament quan s'instal·len paque
 
 Un arxiu d'estils globals (molt utilitzat si es fa servir NativeWind o Tailwind CSS a React Native).
 
-#### → .vscode/* i .expo/*
+#### → .vscode/* , .expo/* i tsconfig.json
 
-Carpetes autogenerades per a coses tant de visual studio code com per a coses d'expo. En ser autogenerades no cal que ens preocupem del seu contingut.
+Carpetes/fitxers autogenerades per a coses tant de visual studio code com per a coses d'expo o TS. En ser autogenerades no cal que ens preocupem del seu contingut.
 
 #### → .claude/* i AGENTS.md
 
@@ -221,7 +220,7 @@ export default function ShopingCart(){
     };
 
     // Actualitzem l'estat del carro
-    setCart([...cart, newProduct]);
+    setCart((prevCart) => [...prevCart, newProduct]);
   }
 
   // Return de la funció en format JSX
@@ -265,9 +264,161 @@ La filosofia d'aquests estils és molt semblant a la de CSS, però amb una sinta
 
 A l'exemple de la secció anterior ja es pot veure com s'ha estilitzat una aplicació, per tant no realitzarem un nou exemple.
 
-## NAVEGACIÓ
+## FITXERS, ORGANITZACIÓ I NAVEGACIÓ
+
+Si hem arribat fins aquest punt dels aputns és perquè ja sabem com s'escriu i s'organitza un fitxer de React Native qualsevol (i.e: imports, components i estils), ara, però, ens toca parlar sobre com estructurar els diferents fitxers (de codi a desenvolupar, queda clar) entre ells dins d'un projecte de React Native.
+
+A l'apartat de "PRIMERES PASSES" ja s'ha parlat sobre el directori "src/\*" i de l'existència de dues classes de components diferents: els components reutilitzables (p.e. botons, *inputs*...) i els de les pantalles de l'aplicació (*home*, contacta amb nosaltres...). En aquest apartat s'entrarà més a fons sobre el concepte i tractament d'aquestes dues menes de components.
 
 
+### Components reutilitzables
+
+Els components reutilitzables són els més senzills d'entendre i de fer servir. 
+
+**ORGANITZACIÓ**: Tots els components reutilitzables es situaran al directori `./src/components/*` (o a directoris més a dins d'aquest a gust del consumidor).
+
+Per tal de fer el component accessible des de fitxers fora del mateix caldrà escriure el terme: `export` just davant de: `function`.
+
+
+**CRIDA I ÚS**: Per fer servir els components en un altre fitxer caldrà escriure la següent linea de codi (un import senzill) al capdemunt del fitxer des del qual volem fer la crida.
+
+```TypeScript
+import { <nom_del_component> } from '@/src/components/<nom_del_fitxer_del_component>';
+```
+
+### Components: pantalles de l'aplicació
+
+Per pantalles s'enten que ens referim a components de React Native que representen una vista completa de la interfície amb la qual l'usuari interactua (per exemple: la pantalla de login, el perfil d'usuari o el directori principal).
+
+A diferència dels components reutilitzables, les pantalles solen compondre's de múltiples components petits (Button, Header, Input) i gestionen la lògica principal o la càrrega de dades d'aquella secció.
+
+**ORGANITZACIÓ**: Hi ha diferents formes per les quals es poden organitzar els diferents components dins del sistema de fitxers, però la que que s'explica en aquest document és la Navegació basada en fitxers (Expo route).
+
+
+**EXPO ROUTE (o Navegació basada en fitxers):**
+
+El que es preten dir amb navegació basada en fitxers és que cada fitxer creat dins del directori `src/app/` es converteix automàticament en una pantalla.
+
+A més, dins de la mateixa carpteta `src/app/*` es podran crear subdirectoris especials anomenats *groups* (indicats amb *'(<nom_dir>)'*). 
+
+Dins de cada group (i del mateix `src/app/*`) es podrà crear un document especial anomenat `_layout.tsx`. Aquest fitxer `_layout.tsx` actua com un embolcall (*wrapper*) o plantilla comuna per a totes les pantalles que estan al seu mateix nivell de directori o en subcarpetes. I serveix principalment per a dues coses:
+
+- Definir el tipus de navegació (pila de pantalles, pestanyes inferiors, menú lateral...).
+
+- Compartir interfície o configuració comuna (un header global, un fons de pantalla, un proveïdor d'estat/context com l'autenticació o el tema clar/fosc).
+
+Quan l'usuari navega entre pantalles del mateix directori, el layout no es torna a renderitzar; només canvia el contingut intern.
+
+A l'hora de fer servir els fitxers _layout hi ha dues approximacions diferents que es poden seguir:
+
+1. Navegació en pila ( ***STACK*** ): Organitza les plantilles en forma de baralla de cartes, cada cop que obrim una pestanya és com si la posessim a sobre de la que ja teniem, de forma que, en tirar endarrera, ho fem a l'anterior pestanya.
+
+```TypeScript
+import { Stack } from 'expo-router';
+
+export default function RootLayout () {
+  return(
+    <Stack
+      screenOptions={{
+        headerStyle: { backgroundColor: '#007AFF' },
+        headerTintColor: '#fff',
+        headerTitleStyle: { fontWeight: 'bold' },
+      }}
+    >
+      { /* El 'name' ha de ser el nom del FITXER al que ens referim, no del component */ }
+      <Stack.Screen name="index" options={{title: 'Home'}}/>
+      <Stack.Screen name="profile" options={{title: 'Perfils'}}/>
+
+    </Stack>
+  );
+}
+```
+
+2. Navegació per pestanyes ( ***Tabs*** ): Es crea una barra de navegació (per defecte inferior) des de la qual es podra accedir als diferents components de l'aplicació.
+
+```TypeScript
+
+import { Tabs } from 'expo-router'
+
+export default function TabLayout() {
+  return (
+    <Tabs 
+      screenOptions={{
+        tabBarPosition: 'top',
+        tabBarActiveTintColor: '#007AFF',
+      }}
+    >
+      <Tabs.Screen name="index" options={{title: 'Home'}}/>
+      <Tabs.Screen name="explore" options={{title: 'Explorador'}} />
+
+    </Tabs>
+
+  );
+}
+
+```
+
+De cara a un projecte no cal triar un o l'altre, de fet es poden intercanviar els dos dins d'una mateixa aplicació. Cal recordar que, per cada directori entre '*()*' es podrà crear un nou fitxer `_layout.tsx`.
+
+
+**CANVIS DE PANTALLA:**
+
+Per poder canviar de pantalla es podrà fer servir o la funció `useRouter` o el component `Link` depenent de la situació:
+
+- Component `Link`: Bàsicament es tracta d'un component del JSX que actua de forma pràcticament idèntica a la del `a` a HTML. Aquest component crearà enllaços (links) que el sistema operatiu i altres entitats podran veure. Existeix una propietat d'aquest component anomenada `asChild` que serveix per simplificar l'estil de l'aplicació barrejant el component Link amb el seu fill.
+
+```TypeScript
+import { Link } from 'expo-router';
+import { Text, Button } from 'react-native';
+
+export default function HomeScreen(){
+  // Ús directe
+  <Link href="/profile"> Anar al perfil </Link>
+
+  // Embolcallant un component personalitzat amb asChild
+  <Link href="/settings" asChild>
+    <Button>
+      <Text> Settings </Text>
+    </Button>
+  </Link>
+}
+```
+- `useRouter` (Navegació **Programàtica**): Aquest mètode és més *fancy* però més segur, doncs consisteix en canviar de pestanyes per via codi, fent crides a mètodes de JavaScript des de funcions diferents. Algunes de les crides són:
+
+  - `router.push('/ruta')`: Afegeix la pantalla a la pila (permet tornar enrere).
+  - `router.replace('/ruta')`: Substitueix la pantalla actual (no permet tornar enrere, ideal per a Login/Logout).
+  - `router.back()`: Torna a la pantalla anterior de la pila.
+
+  Aquesta aproximació ens dona més llibertat a l'hora de triar quan es canvia de pestanya, mentre que amb el Link és l'usuari quí decideix en clicar a l'enllaç.
+
+```TypeScript
+import { useRouter } from 'expo-router';
+import { Pressable } from 'react-native';
+
+export default function Home() {
+  const router = useRouter();
+
+  const handleLogin = async () => {
+    const success = await checkCredentials();
+
+    if (success) {
+      // Naveguem imperativament només si el login és correcte
+      // Utilitzem replace per evitar que puguin tornar enrere a la pantalla de login
+      router.replace('/dashboard');
+    }
+  };
+
+  return (
+    <Pressable 
+      title="Iniciar Sessió" 
+      onPress={handleLogin} 
+    />
+  );
+
+}
+```
+
+Per cert, des dels `_layout.tsx`s també es poden crear instruccions i formes d'arribar a pestanyes de l'estíl: "404 not found" o altres errors o casos extra.
 
 ## Bibliografia
 [YT video - React Native Full Course for Beginners - freeCodeCamp](https://www.youtube.com/watch?v=sm5Y7Vtuihg)
